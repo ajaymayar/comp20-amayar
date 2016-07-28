@@ -19,7 +19,7 @@
 
 	music_video.addEventListener("timeupdate", function() {
 		if (music_video.currentTime < 9) {
-			lyrics.innerHTML = "<h1>PUT IMAGE HERE</h1>";
+			lyrics.innerHTML = "<img src='uk_img.jpg' height = 400 width = 600 />"; 
 		}
 		else if(music_video.currentTime > 9 && music_video.currentTime < 14){
 			lyrics.innerHTML = "<h1>The sun shines bright in My Old Kentucky Home,</h1>";
@@ -42,10 +42,13 @@
 		else if (music_video.currentTime > 48 && music_video.currentTime < 55){
 			lyrics.innerHTML = "<h1>By 'n' by hard times come a knocking at the door,</h1>";
 		}
-		else if (music_video.currentTime > 55 && music_video.currentTime < 62){
+		else if (music_video.currentTime > 55 && music_video.currentTime < 60){
 			lyrics.innerHTML = "<h1>Then My Old Kentucky Home, good night!</h1>";
 		}
-		else if (music_video.currentTime > 62 && music_video.currentTime < 68){
+		else if (music_video.currentTime > 60 && music_video.currentTime < 64){
+			lyrics.innerHTML = "<img src='kfc.jpg' height=400 width=600 />";
+		}
+		else if (music_video.currentTime > 64 && music_video.currentTime < 68){
 			lyrics.innerHTML = "<h1>Weep no more my lady</h1>";
 		}
 		else if (music_video.currentTime > 68 && music_video.currentTime < 75){
