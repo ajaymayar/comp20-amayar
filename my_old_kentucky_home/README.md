@@ -1,6 +1,6 @@
-Ajay Mayar, Week 3
+Ajay Mayar | My Old Kentucky Home | Week 3
 
 Displays the lyrics for the song underneath the video at the correct times.  
-Still need to add two images to the lyrics
+Correctly displays two images: UK basketball logo before the words start, and KFC logo before the chorus
 
-Time spent (so far): ~ 3 hours
+Time spent: 3.5 hours
