@@ -59,10 +59,113 @@ function init()
 	// create map
 	var map = new google.maps.Map(document.getElementById("map_canvas"), settings);
 	
+	findMe(map);
+	
 	drawMarkers(map);
 	drawPolylines(map);
 }
 
+// findMe
+// arguments: map
+// finds user's current position and draws a marker
+function findMe(map)
+{
+	if (navigator.geolocation){
+		navigator.geolocation.getCurrentPosition(function(position) {
+			var myPos = {
+				lat: position.coords.latitude,
+				lng: position.coords.longitude
+			};
+			
+			// place a marker on position	
+			var myMarker = new google.maps.Marker({
+				map: map,
+				title: 'Your Location',
+				animation: google.maps.Animation.DROP,
+			});
+			
+			// create and place an infowindow
+			var infowindow = new google.maps.InfoWindow({
+				map: map,
+			});
+
+			// find closest station, display name and distance
+			var closestStation = findClosestStop(myPos.lat, myPos.lng);
+			var distance = haversine(myPos.lat, myPos.lng, closestStation[1], closestStation[2]);
+			var displayD = distance.toString();
+			var message  = String(closestStation[0] + ' is the closest stop. \n'+  displayD + ' miles away.');
+
+			myMarker.setPosition(myPos);
+			myMarker.addListener('click', function() {
+				infowindow.setContent(message);
+				infowindow.open(map, myMarker);
+			});
+			
+			lineToStop(map, myPos, closestStation);
+		});
+	}
+	else {
+		console.log("Failed");
+	}
+}
+
+function lineToStop(map, myPos, closestStation)
+{
+	var path = [myPos, {lat: closestStation[1], lng: closestStation[2]}];
+	var line = new google.maps.Polyline({
+		path: path,
+		strokeColor: '#ff0000',
+		strokeOpacity: 1.0,
+		strokeWeight: 2
+	});
+	
+	line.setMap(map);
+}
+
+// use the haversine formula to find the closest stop
+function findClosestStop(myLat, myLng)
+{
+	var shortestDistance = 9999999999999; //initializing shortestDistance as the large number so that
+				      //the first station distance will be lower
+	var closestStation;
+
+	for(var i=0;i<stations.length;i++) {
+		var station = stations[i];
+		var distance = haversine(myLat, myLng, station[1], station[2]);
+		if(distance < shortestDistance){
+			shortestDistance = distance;
+			closestStation = station;
+				
+		}
+	}	
+	
+	return closestStation;
+}
+
+// Haversine formula in JavaScript from Stack Overflow
+function haversine(lat1, lng1, lat2, lng2)
+{
+	Number.prototype.toRad = function() {
+		return this * Math.PI / 180;
+	}
+
+	var R = 6371; // earth in km
+	var x1 = lat2-lat1;
+	var dLat = x1.toRad();
+	var x2 = lng2-lng1;
+	var dLng = x2.toRad();
+	var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+		Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
+		Math.sin(dLng/2) * Math.sin(dLng/2);
+	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+	var d = R * c;
+	
+	return d;		
+}
+
+// drawMarkers
+// arguments: map
+// draws markers at all red line stations
 function drawMarkers(map)
 {
 	var image = {
@@ -81,6 +184,9 @@ function drawMarkers(map)
 	}
 }
 
+// drawPolyLines
+// arguments: map
+// draws the path of the red line using polylines
 function drawPolylines(map)
 {
 	var trainPath = [alewife, davisSquare, porterSquare, harvardSquare, centralSquare,
