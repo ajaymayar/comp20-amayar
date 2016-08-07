@@ -61,7 +61,7 @@ function init()
 
   // locate user and place marker/infowindow	
   findMe(map);
-  
+
   var schedule = [];
   // get data using XML request
   var request = new XMLHttpRequest();
@@ -70,7 +70,7 @@ function init()
     getTrips(request, map);
   };
   request.send();
-  
+
   drawPolylines(map);
 }
 
@@ -86,15 +86,15 @@ function getTrips(request, map)
     for(var i=0;i<trainsData.TripList.Trips.length;i++){
       for(var j=0;j<trainsData.TripList.Trips[i].Predictions.length;j++){
         schedPerStation.push({"Station": trainsData.TripList.Trips[i].Predictions[j].Stop,
-                              "Destination": trainsData.TripList.Trips[i].Destination,
-                              "Time": trainsData.TripList.Trips[i].Predictions[j].Seconds,
-                              "Trip ID": trainsData.TripList.Trips[i].TripID});
+          "Destination": trainsData.TripList.Trips[i].Destination,
+          "Time": trainsData.TripList.Trips[i].Predictions[j].Seconds,
+          "Trip ID": trainsData.TripList.Trips[i].TripID});
       }
     }
+    console.log(schedPerStation);
+    drawMarkers(map, schedPerStation);
   }
 
-  console.log(schedPerStation);
-  drawMarkers(map, schedPerStation);
 }
 
 // findMe
@@ -212,21 +212,32 @@ function drawMarkers(map, schedule)
   for(var i = 0; i < stations.length; i++){
     var content = "";
     var station = stations[i];
+
+    // infowindows
+    for(var j=0;j<schedule.length;j++){
+      if(schedule[j].Station == station[0]){
+        content += "A " + schedule[j].Destination + " bound train is arriving to " + schedule[j].Station + " in " + schedule[j].Time + " seconds. \n";
+      }
+    }
+
+    var infoWindow = new google.maps.InfoWindow({
+      map: map,
+      content: content
+    });
+    infoWindow.close();
+
     var marker = new google.maps.Marker({
       position: {lat: station[1], lng: station[2]},
       map: map,
       icon: image,
       title: station[0],
+      infoWindow: infoWindow
     });
-    for(var j=0;j<schedule.length;j++){
-      if(schedule[j].Station == station[0]){
-        content = "A " + schedule[j].Destination + " bound train is arriving to " + schedule[j].Station+ " in " + schedule[j].Time + " seconds.";
-        console.log(content);
-      }
-    }
+
+    google.maps.event.addListener(marker, 'click', function () {
+      this.infoWindow.open(map, this);
+    });
   }
-
-
 }
 
 
