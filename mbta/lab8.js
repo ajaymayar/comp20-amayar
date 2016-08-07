@@ -91,7 +91,6 @@ function getTrips(request, map)
           "TripID": trainsData.TripList.Trips[i].TripID});
       }
     }
-    console.log(schedPerStation);
     drawMarkers(map, schedPerStation);
   }
 
