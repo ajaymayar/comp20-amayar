@@ -13,8 +13,15 @@ body {
 	height: 100%;
 }
 
-table, th, td {
+table{
   width: 100%;
-  border: 1px solid black;
-  padding: 5px;
+  border-left: 1px solid black;
+  border-top: 1px solid black;
 }
+
+th, td {
+  border-right: 1px solid black;
+  border-bottom: 1px solid black;
+  padding: 5px
+}
+

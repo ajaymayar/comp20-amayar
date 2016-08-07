@@ -59,7 +59,7 @@ function init()
   // create map
   var map = new google.maps.Map(document.getElementById("map_canvas"), settings);
 
-  // locate user and place marker/infowindow	
+  // locate user and place marker/infoWindow	
   findMe(map);
 
   var schedule = [];
@@ -108,17 +108,7 @@ function findMe(map)
         lng: position.coords.longitude
       };
 
-      // place a marker on position	
-      var myMarker = new google.maps.Marker({
-        map: map,
-        title: 'Your Location',
-        animation: google.maps.Animation.DROP,
-      });
 
-      // create and place an infowindow
-      var infowindow = new google.maps.InfoWindow({
-        map: map,
-      });
 
       // find closest station, display name and distance
       var closestStation = findClosestStop(myPos.lat, myPos.lng);
@@ -126,10 +116,24 @@ function findMe(map)
       var displayD = distance.toString();
       var message  = String(closestStation[0] + ' is the closest stop. \n'+  displayD + ' miles away.');
 
+      // create and place an infoWindow
+      var infoWindow = new google.maps.InfoWindow({
+        map: map,
+        content: message
+      });
+      infoWindow.close();
+
+      // place a marker on position	
+      var myMarker = new google.maps.Marker({
+        map: map,
+        title: 'Your Location',
+        animation: google.maps.Animation.DROP,
+        infoWindow: infoWindow
+      });
+
       myMarker.setPosition(myPos);
       myMarker.addListener('click', function() {
-        infowindow.setContent(message);
-        infowindow.open(map, myMarker);
+        infoWindow.open(map, myMarker);
       });
 
       lineToStop(map, myPos, closestStation);
@@ -209,16 +213,24 @@ function drawMarkers(map, schedule)
 
 
   for(var i = 0; i < stations.length; i++){
-    var content = "<table style> <tr><th>Destination</th><th>Station</th><th>Seconds Away</th><th>Trip ID</th></tr></table>";
     var station = stations[i];
+    var content = "";
+    if(schedule.length > 0){
+      content = "<table style> <tr><th>Destination</th><th>Station</th><th>Seconds Away</th><th>Trip ID</th></tr>";
 
-    // infowindows
-    for(var j=0;j<schedule.length;j++){
-      if(schedule[j].Station == station[0]){
-        content += String("<table><tr><td>" + schedule[j].Destination + "</td> <td>" + schedule[j].Station + "</td> <td>" 
-                          + schedule[j].Time + "</td> <td>" + schedule[j].TripID + "</td></tr></table>");
-        
+      // infoWindows
+      for(var j=0;j<schedule.length;j++){
+        if(schedule[j].Station == station[0]){
+          content += "<tr><td>" + schedule[j].Destination + "</td> <td>" + schedule[j].Station + "</td> <td>" 
+            + schedule[j].Time + "</td> <td>" + schedule[j].TripID + "</td></tr>";
+
+        }
       }
+
+      content += "</table>"
+    }
+    else{
+      content = "No Trains Available";
     }
 
     var infoWindow = new google.maps.InfoWindow({
