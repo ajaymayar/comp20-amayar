@@ -61,41 +61,42 @@ function init()
 
   // locate user and place marker/infowindow	
   findMe(map);
-
+  
+  var schedule = [];
   // get data using XML request
   var request = new XMLHttpRequest();
   request.open("GET", "https://powerful-depths-66091.herokuapp.com/redline.json", true);
   request.onreadystatechange = function() {
-    getTrains(request);
+    getTrips(request, map);
   };
   request.send();
-
-  drawMarkers(map);
+  
   drawPolylines(map);
 }
 
-function getTrains(request)
-{		
-  var predictsByStation = {};
-  if (request.readyState == 4 && request.status == 200){
+// getTrips
+// args: XML request 
+// parses JSON data to find trips per stop
+function getTrips(request, map)
+{
+  if(request.readyState == 4 && request.status == 200){
+    var schedPerStation = [];
     var raw = request.responseText;
-    var trainsData = JSON.parse(raw);		
-    console.log(trainsData);
-    var trips = [];
-    for(var i=0; i<trainsData.TripList.Trips.length; i++){
-      trips += trainsData.TripList.Trips[i];
-      for(var j=0; j<trainsData.TripList.Trips[i].Predictions.length; j++){
-        console.log(trips[i].Predictions[j].Stop);
+    var trainsData = JSON.parse(raw);
+    for(var i=0;i<trainsData.TripList.Trips.length;i++){
+      for(var j=0;j<trainsData.TripList.Trips[i].Predictions.length;j++){
+        schedPerStation.push({"Station": trainsData.TripList.Trips[i].Predictions[j].Stop,
+                              "Destination": trainsData.TripList.Trips[i].Destination,
+                              "Time": trainsData.TripList.Trips[i].Predictions[j].Seconds,
+                              "Trip ID": trainsData.TripList.Trips[i].TripID});
       }
     }
   }
-  else if(request.readyState == 4 && request.status != 200){
-    console.log('Something failed');
-  }
-  else{
-    console.log('failed');
-  }
+
+  console.log(schedPerStation);
+  drawMarkers(map, schedPerStation);
 }
+
 // findMe
 // arguments: map
 // finds user's current position and draws a marker
@@ -200,7 +201,7 @@ function haversine(lat1, lng1, lat2, lng2)
 // drawMarkers
 // arguments: map
 // draws markers at all red line stations
-function drawMarkers(map)
+function drawMarkers(map, schedule)
 {
   var image = {
     url: 'marker.png',
@@ -209,6 +210,7 @@ function drawMarkers(map)
 
 
   for(var i = 0; i < stations.length; i++){
+    var content = "";
     var station = stations[i];
     var marker = new google.maps.Marker({
       position: {lat: station[1], lng: station[2]},
@@ -216,9 +218,17 @@ function drawMarkers(map)
       icon: image,
       title: station[0],
     });
-
+    for(var j=0;j<schedule.length;j++){
+      if(schedule[j].Station == station[0]){
+        content = "A " + schedule[j].Destination + " bound train is arriving to " + schedule[j].Station+ " in " + schedule[j].Time + " seconds.";
+        console.log(content);
+      }
+    }
   }
+
+
 }
+
 
 // drawPolyLines
 // arguments: map
@@ -248,4 +258,3 @@ function drawPolylines(map)
   trainPathLines.setMap(map);
   ashmontPathLines.setMap(map);
 }
-
