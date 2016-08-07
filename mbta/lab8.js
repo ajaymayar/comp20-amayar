@@ -88,7 +88,7 @@ function getTrips(request, map)
         schedPerStation.push({"Station": trainsData.TripList.Trips[i].Predictions[j].Stop,
           "Destination": trainsData.TripList.Trips[i].Destination,
           "Time": trainsData.TripList.Trips[i].Predictions[j].Seconds,
-          "Trip ID": trainsData.TripList.Trips[i].TripID});
+          "TripID": trainsData.TripList.Trips[i].TripID});
       }
     }
     console.log(schedPerStation);
@@ -210,13 +210,15 @@ function drawMarkers(map, schedule)
 
 
   for(var i = 0; i < stations.length; i++){
-    var content = "";
+    var content = "<table style> <tr><th>Destination</th><th>Station</th><th>Seconds Away</th><th>Trip ID</th></tr></table>";
     var station = stations[i];
 
     // infowindows
     for(var j=0;j<schedule.length;j++){
       if(schedule[j].Station == station[0]){
-        content += "A " + schedule[j].Destination + " bound train is arriving to " + schedule[j].Station + " in " + schedule[j].Time + " seconds. \n";
+        content += String("<table><tr><td>" + schedule[j].Destination + "</td> <td>" + schedule[j].Station + "</td> <td>" 
+                          + schedule[j].Time + "</td> <td>" + schedule[j].TripID + "</td></tr></table>");
+        
       }
     }
 
