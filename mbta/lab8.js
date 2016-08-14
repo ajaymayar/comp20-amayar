@@ -65,7 +65,7 @@ function init()
   var schedule = [];
   // get data using XML request
   var request = new XMLHttpRequest();
-  request.open("GET", "https://powerful-depths-66091.herokuapp.com/redline.json", true);
+  request.open("GET", "https://pure-fortress-98631.herokuapp.com/redline.json", true);
   request.onreadystatechange = function() {
     getTrips(request, map);
   };
