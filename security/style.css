@@ -1,0 +1,17 @@
+img {
+  max-width:95%;
+  max-height:95%;
+}
+
+body{
+  background: #f2f2f2;
+  font-family: Arial;
+  color: #1a1a1a;
+}
+
+h1{
+  text-align: center;
+}
+h2{
+  text-align: center;
+}
