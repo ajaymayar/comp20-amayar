@@ -2,35 +2,72 @@
 <html>
   <head>
     <title>Lab 13: Security</title>
-    <style>
-      #Intro {background-color: white; color: #808080; }
-      #Methodology {background-color: #003366; color: white;}
-      #Abstract {background-color: #993300; color: black;}
-      #Issues {background-color:  #e6e6e6; color: #333300;}
-      #Conclusion {background-color: #3399ff; color: black;}   
-    </style>
   </head>
 
   <body>
     <div id="Intro">
       <h2>Introduction</h2>
-      <p> I am performing a security assessment of a web application.</p>
+      <p>I am testing a web application for possible security issues.  The application is similar to FourSquare, but is clearly Not FourSquare. <\n>
+        The app has users log in with a login name, their latitude, and their longitude.  When the index is loaded, a list of users is dislayed with their login, lat, lng, and the date.</p>
+      <p>The web application uses Node js Express and MongoDB to create a server and database.</p>
     </div>
 
     <div id="Methodology">
       <h2>Methodology</h2>
+      <p>I used blackbox and whitebox testing - that is, I attacked the site with and without looking at the source code. I primarily used curl to test the vulnerabilities by sending POST requests with various data. I also used query strings to modify data when sending GET requests.</p>
     </div>
 
     <div id="Abstract">
       <h2>Abstract of Findings</h2>
+      <p>I found a variety of vulnerabilities that center around the poor handling of submitted data. The server fails to check the much of the submitted data, so I was able to perform attacks that inject data to the server and create cross-site scripting. Additionally, the NoSQL database does not protect the data, so users can view potentially sensative data (like another user's exact GPS location) by adding a few characters to the url.</p>     
     </div>
 
     <div id="Issues">
       <h2>Issues Found</h2>
+
+      <h3>1. Cross Site Scripting</h3>
+      <h4>Location</h4>
+      <p> /sendLocations POST route </p>
+      <h4>Severity</h4>
+      <p>High. Hackers can embed any javascript code, including dangerous and malicious code. The code is then seen by everyone who accesses the website! Not only is the database at risk, but everyone who views the site.</p>
+      <h4>Description</h4>
+      <p>By using curl to send data to the /sendLocations POST route, I was able to embed javascript code into the site. The source code did not check to make sure that the login field was a string, and it did not escape the entry to get rid of tags, so I was able to add a javascript alert to the website.</p>
+      <img src="curlXSS.png" />
+      <h4>Proof of Vulnerability</h4>
+      <img src="XSS.png" />
+      <h4>Resolution</h4>
+      <p>Escaping the submitted data would fix the problem. If &gt and &lt were changed to &amp gt and &amp lt, the script would not be executed</p> 
+
+      <h3>2. Injection Attack</h3>
+      <h4>Location</h4>
+      <p> /sendLocations POST route/p>
+      <h4>Severity</h4>
+      <p>High. Since the index page displays the database, any corrupt data is received by the user when the user opens the web app. Hackers can also inject files that will corrupt the data or steal the data.</p>
+      <h4>Description</h4>
+      <p>Once again, I exploited the vulnerable POST route. Using curl, I was able to create multiple logins with fake login names, latitudes, and longitudes. When a user now visits the website, they see my fake logins. This exploit undermines the entire purpose of the web application.</p>
+      <img src="Injection.png" />
+      <h4>Proof of Vulnerability</h4>
+      <img src="injectProof.png" />
+      <h4>Resolution</h4>
+      <p>Sanitizing the POST route would fix the problem.</p>
+
+      <h3>3. Sensative Data Exposure</h3>
+      <h4>Location</h4>
+      <p> /checkins.json GET route </p>
+      <h4>Severity</h4>
+      <p>Medium-High. Allows the user the display all of the data for all accounts. If the data stored in checkins.json is seen as very sensitive, then this would be considered an extremely severe issue. 
+      <h4>Description</h4>
+      <p>I added a query to the end of the /checkins.json route in my browser that displays everything in the database where the login is not an empty string. By adding <code>?login[$ne]=''</code>, the mongo database searches for every login that is not an empty string, and displays the document. The hacker could add any other mongo code to the login area of the query to corrupt the data.</p>
+      <h4>Proof of Vulnerability</h4>
+      <img src="SensativeData.png" />
+      <p>Note: <code>?login[$ne]=''</code> becomes <code>?login[$ne]=%27%27</code> because of url encoding.</p>
+      <h4>Resolution</h4>
+      <p>Santizing the GET route would fix the problem. It would prevent the user from adding [$ne], or any other Mongo code, to the GET route.</p>
     </div>
 
     <div id="Conclusion">
       <h2>Conclusion</h2>
+      <p>The web application fails to secure itself against the most common attacks. By simply sanitizing each route, the web app would become much less vulnerable. No major changes need to be made to the database or server. Given that none of the data stored in the database is extremely sensitive (credit card info, social security numbers, etc.), the website's vulnerability does not pose much of an immediate threat. However, the website could become a threat if one person simply injects a malicious script into the POST request. Fixing the security issues would not take much time at all!</p> 
     </div>
 
   </body>
